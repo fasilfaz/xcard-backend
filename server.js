@@ -12,6 +12,7 @@ import errorMiddleware from './src/middlewares/error.middleware.js';
 import { serviceAccount } from './src/config/dev-xcard-firebase.js';
 import * as fs from 'fs';
 import winLogger from './src/middlewares/winston_logger.js';
+import swagger from "./swagger.js";
 
 // Controller
 
@@ -68,6 +69,7 @@ app.use(errorMiddleware);
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use('/profile/public', express.static('public'));
+app.use('/api-docs', swagger);
 
 
 const PORT = process.env.PORT;

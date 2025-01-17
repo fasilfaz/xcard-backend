@@ -32,8 +32,14 @@
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.9",
     "qrcode": "^1.5.4",
+    "swagger": "^0.7.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "url-parse": "^1.5.10",
     "winston": "^3.17.0",
     "xlsx": "^0.20.2"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.26.0"
   }
 }
