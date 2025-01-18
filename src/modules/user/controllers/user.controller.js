@@ -44,12 +44,6 @@ const transporter = Nodemailer.createTransport({
 
 });
 
-/**
- * @desc    Create new user profile
- * @route   POST /api/v1/user/create
- * @access  Private/Admin
- * @schema  Private
- */
 // Handler for creating a user profile
 
 export const createUserProfile = asyncHandler(async (req, res, next) => {
@@ -2475,46 +2469,7 @@ function mixinEngineAdminEdit(req, array) {
     })
     .catch((error) => console.error(error));
 }
-/**
- * @desc   Mixin Admin Edit
- * @model  {
-      "section":"sectionName",
-      "action":"edit",
-      "data":{}
-   }
- */
 
-// function mixinEngineAdminEdit(req, array) {
-//   const updates = array.map((item) => {
-//     const { _id, ...rest } = item.data;
-//     let update;
-//     let query;
-//     query = {
-//       user: req?.query?.admin,
-//       [`${item?.section}.${item?.section}s._id`]: item.data?._id,
-//     };
-//     update = {
-//       $set: { [`${item?.section}.${item?.section}s.$`]: item.data },
-//     };
-//     return { query, update };
-//   });
-//   Promise.all(
-//     updates.map(({ query, update }) => Profile.updateOne(query, update))
-//   )
-//     .then((results) => {
-//       console.log(`${results.length} items updated.`);
-//     })
-//     .catch((error) => console.error(error));
-// }
-
-/**
- * @desc   Mixin Status
- * @model  {
-      "section":"sectionName",
-      "action":"status",
-      "data": true or false
-   }
- */
 function mixinEngineStatus(req, array) {
   const updates = array.map((item) => {
     const query = {

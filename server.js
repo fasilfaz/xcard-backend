@@ -12,18 +12,17 @@ import errorMiddleware from './src/middlewares/error.middleware.js';
 import { serviceAccount } from './src/config/dev-xcard-firebase.js';
 import * as fs from 'fs';
 import winLogger from './src/middlewares/winston_logger.js';
-import swagger from "./swagger.js";
+import { swaggerUi, swaggerSpec, swaggerOptions } from "./swagger/swagger.js";
 
-// Controller
+// Load env vars first
+dotenv.config({
+  path: process.env.NODE_ENV === 'production' ? '.env' : '.env',
+});
 
 // Initialize Firebase
 const firebaseapp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   storageBucket: process.env.BUCKET_URL,
-});
-// Load env vars
-dotenv.config({
-  path: process.env.NODE_ENV === 'production' ? '.env' : '.env',
 });
 
 // Connect to databases
@@ -32,6 +31,7 @@ connectDB();
 // Express initialisation
 const app = express();
 
+// CORS configuration
 if (process.env.NODE_ENV === 'production') {
   app.use(
     cors({
@@ -47,11 +47,13 @@ if (process.env.NODE_ENV === 'production') {
     );
     res.setHeader(
       'Access-Control-Allow-Headers',
-      'X-Requested-With,Content-Type'
+      'X-Requested-With,Content-Type,Authorization'  // Added Authorization
     );
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
   });
+} else {
+  app.use(cors());
 }
 
 // Body parser
@@ -59,40 +61,42 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(logger('dev'));
 
-// Route Files
-
-// Mount routerss
-routes(app);
-
-// Middlewaress
-app.use(errorMiddleware);
-app.set('view engine', 'ejs');
+// Static files
 app.use(express.static('public'));
 app.use('/profile/public', express.static('public'));
-app.use('/api-docs', swagger);
 
+// Swagger Documentation - Make sure this comes before routes
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerSpec, swaggerOptions));
 
-const PORT = process.env.PORT;
-const SECUREPORT = process.env.SECUREPORT;
+// Mount routes
+routes(app);
 
-// HTTP Servers
+// Error middleware
+app.use(errorMiddleware);
+
+// View engine
+app.set('view engine', 'ejs');
+
+const PORT = process.env.PORT || 8000;
+
+// HTTP Server
 const httpServer = http.createServer(app);
 const server = httpServer.listen(
   PORT,
   console.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
 
-
+// Error Handlers
 function exitHandler(options, exitCode) {
   if (options.cleanup) if (exitCode || exitCode === 0) console.log(exitCode);
   if (options.exit) process.exit();
 }
 
-//do something when app is closing
 process.on('exit', exitHandler.bind(null, { cleanup: true }));
-//catches ctrl+c event
 process.on('SIGINT', exitHandler.bind(null, { exit: true }));
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
 });
+
+export default app;

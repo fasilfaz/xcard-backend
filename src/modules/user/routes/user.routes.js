@@ -9,6 +9,7 @@ import multer from "multer";
  * @desc   Route used for user operations
  * @url    api/v1/user
  */
+
 const userRouter = express.Router({ mergeParams: true });
 
 // Multer initialisation
